@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El pronóstico se equivocó… ¿o no?</title>
+<style>
+:root{
+  --bg:#eef2f3; --ink:#17242b; --muted:#607078; --panel:#ffffff;
+  --accent:#245b6b; --accent2:#d49a43; --ok:#39735b; --bad:#9a4b4b;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#dce7ea,#f5f2eb);color:var(--ink)}
+.app{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px}
+.card{width:min(920px,100%);background:var(--panel);border-radius:22px;box-shadow:0 14px 45px #18333b22;overflow:hidden}
+.top{background:#183f4b;color:white;padding:22px 30px;display:flex;justify-content:space-between;align-items:center;gap:20px}
+.brand{font-size:14px;letter-spacing:1.5px;text-transform:uppercase;opacity:.8}
+.progress{font-size:14px;opacity:.9}
+.content{padding:38px 44px 42px}
+h1{font-size:38px;line-height:1.05;margin:0 0 14px}
+h2{font-size:27px;margin:0 0 16px}
+h3{font-size:19px;margin:0 0 9px}
+p{font-size:17px;line-height:1.55}
+.subtitle{color:var(--muted);font-size:18px;max-width:760px}
+.badge{display:inline-block;background:#e9dfcf;color:#65491f;border-radius:999px;padding:7px 12px;font-size:13px;font-weight:bold;margin-bottom:17px}
+.evidence{border-left:5px solid var(--accent2);background:#f7f4ee;padding:18px 20px;border-radius:10px;margin:22px 0}
+.evidence strong{display:block;margin-bottom:7px}
+.options{display:grid;gap:12px;margin-top:22px}
+button{font:inherit}
+.option,.mainbtn,.nextbtn{border:0;border-radius:12px;padding:16px 18px;text-align:left;cursor:pointer;transition:.15s}
+.option{background:#edf2f3;color:var(--ink);border:2px solid transparent}
+.option:hover{transform:translateY(-1px);border-color:#8caab2;background:#f4f7f7}
+.option:disabled{cursor:default;transform:none}
+.feedback{margin-top:20px;padding:18px 20px;border-radius:12px;display:none}
+.feedback.ok{background:#e7f1eb;border:1px solid #9cc1aa;color:#244e3a}
+.feedback.bad{background:#f5e9e9;border:1px solid #d5aaaa;color:#693535}
+.nextrow{display:flex;justify-content:flex-end;margin-top:22px}
+.mainbtn,.nextbtn{background:var(--accent);color:white;text-align:center;font-weight:bold}
+.mainbtn:hover,.nextbtn:hover{background:#194754}
+.center{text-align:center}
+.mission{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin:28px 0}
+.mission div{padding:17px;border-radius:13px;background:#f2f5f5}
+.mission b{display:block;margin-bottom:7px}
+.finalbox{background:#183f4b;color:white;border-radius:16px;padding:25px;margin-top:24px}
+.unlocks{display:flex;flex-wrap:wrap;gap:9px;margin-top:17px}
+.unlock{padding:8px 11px;border-radius:999px;background:#dfe9eb;color:#24424a;font-size:13px}
+.timeline{display:flex;gap:8px;align-items:stretch;margin:22px 0}
+.tstep{flex:1;background:#eef3f4;padding:15px;border-radius:10px;text-align:center}
+.tstep b{display:block;font-size:19px}
+.small{font-size:13px;color:var(--muted)}
+.restart{margin-top:18px;background:transparent;color:var(--accent);border:1px solid #9bb0b6;padding:10px 14px;border-radius:10px;cursor:pointer}
+@media(max-width:700px){.content{padding:28px 22px}.mission{grid-template-columns:1fr}.timeline{flex-direction:column}h1{font-size:31px}}
+</style>
+</head>
+<body>
+<div class="app"><div class="card">
+  <div class="top">
+    <div><div class="brand">Taller de interpretación de la información meteorológica</div></div>
+    <div class="progress" id="progress"></div>
+  </div>
+  <main class="content" id="content"></main>
+</div></div>
+
+<script>
+const steps = [
+{
+ type:"intro",
+ title:"EL PRONÓSTICO SE EQUIVOCÓ… ¿O NO?",
+ text:"Una situación meteorológica puede cambiar rápidamente. Como brigadista, recibís información de distintas fuentes y necesitás decidir qué hacer con ella.",
+ extra:"Pero hay un problema: el pronóstico de ayer no coincide exactamente con lo que está ocurriendo hoy. ¿Fue un error? ¿Cambió la situación? ¿O estamos interpretando mal la información?",
+ button:"COMENZAR INVESTIGACIÓN"
+},
+{
+ title:"CASO 1 · ¿QUÉ PRONÓSTICO ESTAMOS MIRANDO?",
+ situation:"Patagonia · 48 horas antes",
+ text:"Un equipo de brigadistas está planificando tareas para los próximos días. Encuentran este pronóstico:",
+ quote:"“Para los próximos días se espera una tendencia a condiciones más secas de lo normal.”",
+ question:"Una persona del equipo propone: “Entonces podemos asumir que el miércoles no va a llover”. ¿Qué problema hay con esa interpretación?",
+ options:[
+ "Ninguno. Si el pronóstico indica condiciones secas, significa que no habrá precipitaciones.",
+ "El pronóstico puede referirse a una tendencia de escala temporal amplia y no necesariamente indicar qué ocurrirá en un día puntual.",
+ "Los pronósticos meteorológicos solamente sirven para las próximas 24 horas.",
+ "Los pronósticos de más de 48 horas no tienen ninguna utilidad."
+ ],
+ correct:1,
+ explain:"No todos los pronósticos responden la misma pregunta. Un pronóstico de corto plazo busca responder preguntas como “¿va a llover el jueves?”, mientras que un pronóstico estacional puede indicar si un trimestre tiende a ser más húmedo o seco. La escala temporal determina qué tipo de información podemos obtener y cómo debemos interpretarla.",
+ unlock:"Escalas temporales"
+},
+{
+ title:"CASO 2 · EL MODELO DIJO UNA COSA…",
+ situation:"Patagonia · 24 horas antes",
+ text:"Se aproxima un sistema meteorológico que puede generar un cambio importante en las condiciones de viento. Dos modelos presentan resultados diferentes:",
+ quote:"MODELO A · Viento máximo: 45 km/h<br>MODELO B · Viento máximo: 70 km/h",
+ question:"Una persona del equipo dice: “El modelo B debe ser el correcto. Es el que da el valor más alto”. ¿Qué debería hacer el pronosticador?",
+ options:[
+ "Elegir siempre el modelo que pronostique el fenómeno más intenso.",
+ "Elegir siempre el modelo que pronostique el fenómeno menos intenso.",
+ "Comparar las salidas de los modelos y evaluar cuál resulta más adecuado según la situación y la experiencia previa.",
+ "Descartar todos los modelos porque no coinciden."
+ ],
+ correct:2,
+ explain:"Un modelo no se elige simplemente porque entregue el valor más alto o más bajo. El pronosticador utiliza su experiencia para evaluar qué modelos han demostrado ser más precisos para distintas variables y situaciones. Interpretar las salidas de los modelos forma parte del trabajo del pronosticador.",
+ unlock:"Rol del pronosticador"
+},
+{
+ title:"CASO 3 · ¿DÓNDE ESTÁ EL RADAR?",
+ situation:"Seguimiento de una situación meteorológica",
+ text:"Una persona del equipo propone: “Miremos el radar para saber exactamente dónde está la precipitación”. Pero la cobertura de radares no es homogénea en todo el país.",
+ question:"¿Cuál es la mejor forma de interpretar esta situación?",
+ options:[
+ "Si no hay información de radar disponible, no podemos saber qué está ocurriendo.",
+ "El radar siempre permite conocer la situación meteorológica de cualquier punto del país.",
+ "El radar es una fuente de información muy útil, pero debe interpretarse junto con otras observaciones y fuentes disponibles.",
+ "Si tenemos una imagen satelital, el radar deja de ser necesario."
+ ],
+ correct:2,
+ explain:"El radar permite detectar partículas de precipitación y obtener información sobre su distribución e intensidad mediante la reflectividad. Pero forma parte de un conjunto de herramientas. El diagnóstico de la atmósfera se construye utilizando distintas fuentes de información, como estaciones, radares y satélites.",
+ unlock:"Observación y sensores"
+},
+{
+ title:"CASO 4 · LA IMAGEN QUE CAMBIA LA HISTORIA",
+ situation:"Día del operativo",
+ text:"El pronóstico indicaba determinadas condiciones para la jornada. Pero el equipo observa una imagen satelital reciente. La situación atmosférica está evolucionando y la imagen permite observar una estructura nubosa que no estaba presente de la misma manera en la información anterior.",
+ question:"¿Qué representa esta nueva información?",
+ options:[
+ "Una predicción del estado de la atmósfera para los próximos días.",
+ "Una observación de la situación atmosférica actual que puede utilizarse para actualizar el diagnóstico.",
+ "Una alerta meteorológica.",
+ "Una salida de un modelo numérico."
+ ],
+ correct:1,
+ explain:"El satélite es un sensor remoto: obtiene información sin contacto físico con el fenómeno. Sus imágenes permiten observar grandes extensiones y conocer cómo está evolucionando la atmósfera. Por eso, junto con las estaciones y otras fuentes, puede aportar información para construir el diagnóstico.",
+ unlock:"Diagnóstico"
+},
+{
+ title:"DESAFÍO FINAL · ENTONCES… ¿EL PRONÓSTICO SE EQUIVOCÓ?",
+ situation:"Patagonia · 12 horas antes",
+ text:"El equipo reúne todas las evidencias disponibles (observaciones, modelos, satélite, radar y el pronóstico previo). Surgen distintas opiniones sobre lo que está pasando.",
+ quote:"Una situación meteorológica compleja requiere mirar el cuadro completo, no una sola pieza aislada.",
+ question:"Ante una diferencia entre lo previsto y lo que empieza a observarse en el terreno, ¿cuál es la actitud más adecuada?",
+ options:[
+ "Dar por sentado que el pronóstico no sirve y descartarlo por completo.",
+ "Suponer que el modelo que dio el valor más extremo era el único correcto.",
+ "Entender que la atmósfera es dinámica, integrar todas las fuentes y aceptar que toda predicción tiene una cuota de incertidumbre.",
+ "Esperar a que termine el evento sin tomar ninguna medida preventiva."
+ ],
+ correct:2,
+ explain:"Un pronóstico meteorológico no es una verdad absoluta ni una adivinación. Se construye combinando el diagnóstico actual, las observaciones y los modelos, los cuales siempre presentan cierta incertidumbre. Interpretar la información correctamente implica entender qué nos dice cada herramienta y cómo evoluciona la situación en tiempo real para tomar mejores decisiones.",
+ unlock:"Integración e incertidumbre"
+}
+];
+
+let current=0, score=0, unlocked=[];
+
+function renderIntro(s){
+ return `<div class="center">
+   <span class="badge">MISIÓN METEOROLÓGICA</span>
+   <h1>${s.title}</h1>
+   <p class="subtitle">${s.text}</p>
+   <p>${s.extra}</p>
+   <div class="mission">
+     <div><b>OBSERVAR</b><span class="small">¿Qué información tenemos?</span></div>
+     <div><b>INTERPRETAR</b><span class="small">¿Qué nos dicen las fuentes?</span></div>
+     <div><b>DECIDIR</b><span class="small">¿Qué hacemos con esa información?</span></div>
+   </div>
+   <button class="mainbtn" onclick="next()">▶ ${s.button}</button>
+ </div>`;
+}
+
+function renderQuestion(s){
+ const opts=s.options.map((o,i)=>`<button class="option" onclick="answer(${i})">${String.fromCharCode(65+i)}. ${o}</button>`).join("");
+ return `<span class="badge">${s.situation}</span>
+   <h2>${s.title}</h2>
+   <p>${s.text}</p>
+   ${s.quote?`<div class="evidence"><strong>EVIDENCIA</strong>${s.quote}</div>`:""}
+   <h3>${s.question}</h3>
+   <div class="options">${opts}</div>
+   <div class="feedback" id="feedback"></div>
+   <div class="nextrow" id="nextrow"></div>`;
+}
+
+function renderFinal(s){
+ return `<div class="center">
+   <span class="badge">EXPEDIENTE RESUELTO</span>
+   <h1>¿EL PRONÓSTICO SE EQUIVOCÓ?</h1>
+   <p class="subtitle">La pregunta más útil no siempre es “¿acertó o se equivocó?”. También hay que preguntarse qué información estaba disponible, qué incertidumbre existía y cómo debía interpretarse.</p>
+   <div class="finalbox">
+     <h2>MAPA DEL PRONÓSTICO</h2>
+     <p><b>OBSERVACIÓN → DIAGNÓSTICO → MODELOS → INTERPRETACIÓN → DECISIÓN</b></p>
+     <p>Pronosticar no es solamente mirar un modelo. Es interpretar información para tomar decisiones.</p>
+   </div>
+   <div class="unlocks">${unlocked.map(x=>`<span class="unlock">✓ ${x}</span>`).join("")}</div>
+   <p><b>Resultado: ${score} de 5 respuestas correctas.</b></p>
+   <button class="restart" onclick="restart()">Volver a jugar</button>
+ </div>`;
+}
+
+function render(){
+ document.getElementById("progress").textContent = current===0 ? "INICIO" : current<=5 ? `CASO ${current} / 5` : "FINAL";
+ document.getElementById("content").innerHTML = current===0 ? renderIntro(steps[0]) : current<=5 ? renderQuestion(steps[current]) : renderFinal(steps[5]);
+}
+
+function next(){ current++; render(); }
+
+function answer(i){
+ const s=steps[current], fb=document.getElementById("feedback");
+ const buttons=[...document.querySelectorAll(".option")];
+ buttons.forEach(b=>b.disabled=true);
+ if(i===s.correct){
+   score++;
+   if(!unlocked.includes(s.unlock)) unlocked.push(s.unlock);
+   fb.className="feedback ok";
+   fb.innerHTML="<b>✓ CONCEPTO DESBLOQUEADO</b><br><br>"+s.explain;
+ }else{
+   fb.className="feedback bad";
+   fb.innerHTML="<b>✕ REVISÁ LA EVIDENCIA</b><br><br>"+s.explain;
+ }
+ fb.style.display="block";
+ document.getElementById("nextrow").innerHTML=`<button class="nextbtn" onclick="next()">${current===5?"VER RESULTADO":"SIGUIENTE EVIDENCIA"} →</button>`;
+}
+
+function restart(){current=0;score=0;unlocked=[];render()}
+render();
+</script>
+</body>
+</html>
